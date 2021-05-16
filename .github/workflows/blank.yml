@@ -75,11 +75,11 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          context: ${{ steps.prep.outputs.context_path }}
-          file: ${{ steps.prep.outputs.dockerfile }}
+          context: ${{ steps.info.outputs.context_path }}
+          file: ${{ steps.info.outputs.dockerfile }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.prep.outputs.image_name }}
-          cache-from: ${{ steps.prep.outputs.image_name }}
+          tags: ${{ steps.info.outputs.image_name }}
+          cache-from: ${{ steps.info.outputs.image_name }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
