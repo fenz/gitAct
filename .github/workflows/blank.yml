@@ -17,7 +17,7 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     env:
-      DOCKER_ORG: provarepro
+      DOCKER_ORG: reprova
     if: "startsWith(github.event.head_commit.message, 'Build docker:')"
 
     # Steps represent a sequence of tasks that will be executed as part of the job
