@@ -35,9 +35,7 @@ jobs:
           DOCKER_SW_NAME=${SW_NAME,,}
           echo "DOCKER_SW_NAME: ${DOCKER_SW_NAME}"
           COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
-          echo "COMMIT_MESSAGE: ${COMMIT_MESSAGE}"
           SW_TAG=${COMMIT_MESSAGE#*"Build docker:"}
-          echo "SW_TAG: ${SW_TAG}"
           SW_TAG=$(echo ${SW_TAG%%,*} | sed 's/ *$//g')
           echo "SW_TAG: ${SW_TAG}"
           DOCKERFILEPATH=$(find . -name "${SW_TAG}.dockerfile")
@@ -75,10 +73,9 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           context: ${{ env.CONTEXT_PATH }}
           file: ${{ env.DOCKERFILE }}
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ env.IMAGE_NAME }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
+          cache-from: ${{ env.IMAGE_NAME }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
