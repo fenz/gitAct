@@ -28,6 +28,7 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: Define container info
+        id: info
         run: |
           echo "REPO: ${GITHUB_REPOSITORY}"
           SW_NAME=$(echo ${GITHUB_REPOSITORY##*/} | sed 's/ *$//g')
@@ -44,9 +45,12 @@ jobs:
           echo "CONTEXT_PATH: ${CONTEXT_PATH}"
           IMAGE_NAME="${DOCKER_ORG}/${DOCKER_SW_NAME}:${SW_TAG}"
           echo "IMAGE_NAME: ${IMAGE_NAME}"
-          echo "CONTEXT_PATH=${CONTEXT_PATH}" >> $GITHUB_ENV
-          echo "DOCKERFILE=${SW_TAG}.dockerfile" >> $GITHUB_ENV
-          echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
+          echo ::set-output name=context_path::${CONTEXT_PATH}
+          #echo "CONTEXT_PATH=${CONTEXT_PATH}" >> $GITHUB_ENV
+          echo ::set-output name=dockerfile::${SW_TAG}.dockerfile
+          #echo "DOCKERFILE=${SW_TAG}.dockerfile" >> $GITHUB_ENV
+          echo ::set-output name=image_name::${IMAGE_NAME}
+          #echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         id: buildx
@@ -71,11 +75,11 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          context: ${{ env.CONTEXT_PATH }}
-          file: ${{ env.DOCKERFILE }}
+          context: ${{ steps.prep.outputs.context_path }}
+          file: ${{ steps.prep.outputs.dockerfile }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.IMAGE_NAME }}
-          cache-from: ${{ env.IMAGE_NAME }}
+          tags: ${{ steps.prep.outputs.image_name }}
+          cache-from: ${{ steps.prep.outputs.image_name }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
